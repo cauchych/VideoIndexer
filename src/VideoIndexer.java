@@ -62,8 +62,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb"); // TODO change this path to your own
-			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav"; // TODO change this path to you own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.rgb"); // TODO change this path to your own
+			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.wav"; // TODO change this path to you own
 
 			waveStream = new FileInputStream(filename);
 			
@@ -208,7 +208,7 @@ public class VideoIndexer {
 				System.out.println("pause pressed");
 				videoTimer.cancel();
 				audioTimer.cancel();
-				
+				dataLine.stop();
 				
 				
 			}else if (e.getSource() == stopButton){
