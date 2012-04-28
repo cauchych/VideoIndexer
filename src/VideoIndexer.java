@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -62,8 +63,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb"); // TODO change this path to your own
-			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav"; // TODO change this path to you own
+			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.rgb"); // TODO change this path to your own
+			String filename = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.wav"; // TODO change this path to you own
 
 			waveStream = new FileInputStream(filename);
 			
@@ -163,7 +164,8 @@ public class VideoIndexer {
 
 		audioInputStream = null;
 		try {
-		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+			InputStream bufferedIn = new BufferedInputStream(waveStream);
+		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
