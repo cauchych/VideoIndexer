@@ -28,6 +28,7 @@ public class VideoIndexer {
 	Timer videoTimer;
 	JButton playButton, pauseButton, stopButton, searchButton;
 	MyListener listener;
+	PlaySound playSound;
 
     int height = 288;
     int width = 352;
@@ -42,9 +43,13 @@ public class VideoIndexer {
 	public VideoIndexer(){
 
 
-		
 		try{
-			File file = new File("C:/Users/edeng/VideoIndexer/vdo1/vdo1.rgb"); // TODO change this path to your own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb"); // TODO change this path to your own
+			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav"; // TODO change this path to you own
+
+			FileInputStream audioInputStream = new FileInputStream(filename);
+			 playSound = new PlaySound(audioInputStream);
+			
 		    InputStream is = new FileInputStream(file);
 		    long len = file.length();
 		    byte[] bytes = new byte[(int)len];
@@ -147,21 +152,33 @@ public class VideoIndexer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == playButton){
-				System.out.println("play pressed;");
+				System.out.println("play pressed");
 
-				videoTimer = new Timer();
-				videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66				
+				//videoTimer = new Timer();
+				//videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66		
+				
+				try {
+				    playSound.play();
+				} catch (PlayWaveException ex) {
+				    ex.printStackTrace();
+				    return;
+				}
+				
 			}else if (e.getSource() == pauseButton){
-				System.out.println("pause pressed;");
-				videoTimer.cancel();
+				//System.out.println("pause pressed");
+				//videoTimer.cancel();
+				
+				
 			}else if (e.getSource() == stopButton){
-				System.out.println("stop pressed;");
-				videoTimer.cancel();
-				videoFrame = 0;
-			    imgPanel.img = vdo[videoFrame];
-			    imgPanel.repaint();
+				System.out.println("stop pressed");
+				//videoTimer.cancel();
+				//videoFrame = 0;
+			    //imgPanel.img = vdo[videoFrame];
+			    //imgPanel.repaint();
+				
+				
 			}else if (e.getSource() == searchButton){
-				System.out.println("search pressed;");
+				System.out.println("search pressed");
 				// TODO nothing for now
 			}			
 		}
@@ -170,7 +187,12 @@ public class VideoIndexer {
 	
 	public class PlayVideo extends TimerTask{
 		public void run(){
-			videoFrame = (videoFrame + 1) % vdo.length;
+			videoFrame++;
+			if (videoFrame >= vdo.length){
+				videoFrame = 0;
+				this.cancel();
+				return;
+			}
 			imgPanel.img = vdo[videoFrame];
 			imgPanel.repaint();
 		}
