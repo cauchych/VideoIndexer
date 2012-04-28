@@ -8,10 +8,18 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine.Info;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -26,13 +34,23 @@ public class VideoIndexer {
 	MyPanel imgPanel = new MyPanel();
 	int videoFrame;
 	Timer videoTimer;
+	Timer audioTimer;
 	JButton playButton, pauseButton, stopButton, searchButton;
 	MyListener listener;
-	PlaySound playSound;
 
     int height = 288;
     int width = 352;
     int numFrames = 720;
+
+    private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
+    AudioInputStream audioInputStream;
+    InputStream waveStream;
+    Info info;
+    AudioFormat audioFormat;
+    SourceDataLine dataLine;
+    
+	int readBytes = 0;
+	byte[] audioBuffer = new byte[EXTERNAL_BUFFER_SIZE];
 	
 	public static void main(String[] args){
 			
@@ -47,8 +65,7 @@ public class VideoIndexer {
 			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb"); // TODO change this path to your own
 			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav"; // TODO change this path to you own
 
-			FileInputStream audioInputStream = new FileInputStream(filename);
-			 playSound = new PlaySound(audioInputStream);
+			waveStream = new FileInputStream(filename);
 			
 		    InputStream is = new FileInputStream(file);
 		    long len = file.length();
@@ -143,6 +160,31 @@ public class VideoIndexer {
 
 		videoFrame = 0;
 	    imgPanel.img = vdo[videoFrame];
+
+		audioInputStream = null;
+		try {
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+		} catch (UnsupportedAudioFileException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		} catch (IOException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		}
+	
+		// Obtain the information about the AudioInputStream
+		audioFormat = audioInputStream.getFormat();
+		info = new Info(SourceDataLine.class, audioFormat);
+	
+		// opens the audio channel
+		dataLine = null;
+		try {
+		    dataLine = (SourceDataLine) AudioSystem.getLine(info);
+		    dataLine.open(audioFormat, EXTERNAL_BUFFER_SIZE);
+		} catch (LineUnavailableException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		}
 	}
 
 	
@@ -154,19 +196,19 @@ public class VideoIndexer {
 			if (e.getSource() == playButton){
 				System.out.println("play pressed");
 
-				//videoTimer = new Timer();
-				//videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66		
+				videoTimer = new Timer();
+				videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
 				
-				try {
-				    playSound.play();
-				} catch (PlayWaveException ex) {
-				    ex.printStackTrace();
-				    return;
-				}
+			
+				dataLine.start();
+				audioTimer = new Timer();
+				audioTimer.schedule(new PlayAudio(), 0, 3000);
 				
 			}else if (e.getSource() == pauseButton){
-				//System.out.println("pause pressed");
-				//videoTimer.cancel();
+				System.out.println("pause pressed");
+				videoTimer.cancel();
+				audioTimer.cancel();
+				
 				
 				
 			}else if (e.getSource() == stopButton){
@@ -175,7 +217,9 @@ public class VideoIndexer {
 				//videoFrame = 0;
 			    //imgPanel.img = vdo[videoFrame];
 			    //imgPanel.repaint();
-				
+
+				int readBytes = 0;
+				byte[] audioBuffer = new byte[EXTERNAL_BUFFER_SIZE];
 				
 			}else if (e.getSource() == searchButton){
 				System.out.println("search pressed");
@@ -198,6 +242,25 @@ public class VideoIndexer {
 		}
 	} // end of PlayVideo Timer class
 
+	
+	public class PlayAudio extends TimerTask{
+		public void run(){
+			try {
+				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
+				if (readBytes >= 0){
+				    dataLine.write(audioBuffer, 0, readBytes);
+				}else{
+					this.cancel();
+					return;
+				}
+				
+			} catch (IOException e) {
+				System.out.println();
+			}
+			
+		}
+	}
+	
 	public class MyPanel extends JPanel{
 		public BufferedImage img;
 		
