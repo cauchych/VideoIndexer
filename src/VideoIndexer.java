@@ -44,7 +44,7 @@ public class VideoIndexer {
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
 	int videoFrame;
-	Timer videoTimer;
+	ScheduledThreadPoolExecutor videoTimer;
 	ScheduledThreadPoolExecutor audioTimer;
 	ScheduledFuture audioStopper;
 	JButton playButton, pauseButton, stopButton, searchButton;
@@ -74,8 +74,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
-			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
+			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/Cauchy/Documents/CSCI576/project/vdo4/vdo4.wav"); // TODO change this path to you own
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
@@ -219,18 +219,18 @@ public class VideoIndexer {
 		if (status != VideoStatus.PLAYING){
 			status = VideoStatus.PLAYING;
 					
-			videoTimer = new Timer();
-			videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
+			videoTimer = new ScheduledThreadPoolExecutor(5);
+			videoTimer.scheduleAtFixedRate(new PlayVideo(), 0, 41666666, TimeUnit.NANOSECONDS); // 41.66	
 			dataLine.start();
 			audioTimer = new ScheduledThreadPoolExecutor(5);
-			audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 42, TimeUnit.MILLISECONDS);
+			audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 41666666, TimeUnit.NANOSECONDS);
 		}
 	}
 	
 	public void pause(){
 		if (status == VideoStatus.PLAYING){
 			status = VideoStatus.PAUSED;
-			videoTimer.cancel();
+			videoTimer.shutdownNow();
 			audioTimer.shutdownNow();
 			dataLine.stop();	
 		}
@@ -239,7 +239,7 @@ public class VideoIndexer {
 	public void stop(){
 		status = VideoStatus.STOPPED;
 
-		videoTimer.cancel();
+		videoTimer.shutdownNow();
 		videoFrame = 0;
 	    imgPanel.img = vdo[currentVideo][videoFrame];
 	    imgPanel.repaint();	    
@@ -308,12 +308,12 @@ public class VideoIndexer {
 		
 	} // end of MyListener class
 	
-	public class PlayVideo extends TimerTask{
+	public class PlayVideo implements Runnable {
 		public void run(){
 			videoFrame++;
 			if (videoFrame >= vdo[currentVideo].length){
 				videoFrame = 0;
-				this.cancel();
+				videoTimer.shutdownNow();
 				return;
 			}
 			imgPanel.img = vdo[currentVideo][videoFrame];
