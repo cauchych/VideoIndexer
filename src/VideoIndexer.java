@@ -75,8 +75,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
-			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
+			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav"); // TODO change this path to you own
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
