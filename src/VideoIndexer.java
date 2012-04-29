@@ -57,7 +57,6 @@ public class VideoIndexer {
     SourceDataLine dataLine;
     
 	int readBytes = 0;
-	int offset = 0;
 	byte[] audioBuffer; // = new byte[EXTERNAL_BUFFER_SIZE];;
 	int buffersize;
 	int currentVideo = 0;
@@ -76,7 +75,9 @@ public class VideoIndexer {
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
-			buffersize = (int) ((double) audiolen * 42.0 / 30000.0);
+			System.out.println("audiolen: " + audiolen);
+			buffersize = (int) Math.round((double) audiolen * 42.0 / 30000.0);
+			System.out.println("buffersize: " + buffersize);
 			audioBuffer = new byte[buffersize];
 		    InputStream is = new FileInputStream(file);
 		    long len = file.length();
@@ -193,6 +194,9 @@ public class VideoIndexer {
 	
 		// Obtain the information about the AudioInputStream
 		audioFormat = audioInputStream.getFormat();
+		System.out.println("audio frame rate: " + audioFormat.getFrameRate());
+		System.out.println("audio frame size: " + audioFormat.getFrameSize());
+		
 		info = new Info(SourceDataLine.class, audioFormat);
 	
 		// opens the audio channel
@@ -208,19 +212,23 @@ public class VideoIndexer {
 
 	
 	public void play(){
-		status = VideoStatus.PLAYING;
-		videoTimer = new Timer();
-		videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
-		dataLine.start();
-		audioTimer = new Timer();
-		audioTimer.schedule(new PlayAudio(), 0, 42);
+		if (status != VideoStatus.PLAYING){
+			status = VideoStatus.PLAYING;
+			videoTimer = new Timer();
+			videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
+			dataLine.start();
+			audioTimer = new Timer();
+			audioTimer.schedule(new PlayAudio(), 0, 42);
+		}
 	}
 	
 	public void pause(){
-		status = VideoStatus.PAUSED;
-		videoTimer.cancel();
-		audioTimer.cancel();
-		dataLine.stop();	
+		if (status == VideoStatus.PLAYING){
+			status = VideoStatus.PAUSED;
+			videoTimer.cancel();
+			audioTimer.cancel();
+			dataLine.stop();	
+		}
 	}
 	
 	public void stop(){
@@ -414,10 +422,52 @@ public class VideoIndexer {
 			if (status == VideoStatus.PLAYING){
 				pause();
 			}
-			videoFrame = ((MyPanel)arg0.getSource()).imgFrame;
+			int temp = ((MyPanel)arg0.getSource()).imgFrame;
+
+			videoFrame = temp;
 			imgPanel.img = vdo[currentVideo][videoFrame];
 			imgPanel.repaint();
-			//play();
+			
+			
+			
+			try {
+				waveStream = new FileInputStream(audio);
+			} catch (FileNotFoundException e) {
+				System.out.println(e);
+			}
+			
+		    audioInputStream = null;
+			try {
+				InputStream bufferedIn = new BufferedInputStream(waveStream);
+				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+			    //audioInputStream.skip(temp * buffersize);
+			} catch (UnsupportedAudioFileException e1) {
+				System.out.println(e1);
+			    //throw new PlayWaveException(e1);
+			} catch (IOException e1) {
+				System.out.println(e1);
+				e1.printStackTrace();
+			    //throw new PlayWaveException(e1);
+			}
+		
+			// Obtain the information about the AudioInputStream
+			audioFormat = audioInputStream.getFormat();
+			info = new Info(SourceDataLine.class, audioFormat);
+
+		      
+			// opens the audio channel
+			dataLine = null;
+			try {
+				audioInputStream.skip(temp * 30 * (int) audioFormat.getFrameRate() * audioFormat.getFrameSize() / numFrames);
+			    dataLine = (SourceDataLine) AudioSystem.getLine(info);
+			    dataLine.open(audioFormat, buffersize);
+			} catch (LineUnavailableException e1) {
+				System.out.println(e1);
+			    //throw new PlayWaveException(e1);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		}
 
