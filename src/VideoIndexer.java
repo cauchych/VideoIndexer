@@ -72,8 +72,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb"); // TODO change this path to your own
-			audio = new File("C:/Users/Cauchy/Documents/CSCI576/project/vdo4/vdo4.wav"); // TODO change this path to you own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
@@ -185,7 +185,7 @@ public class VideoIndexer {
 		audioInputStream = null;
 		try {
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -443,7 +443,7 @@ public class VideoIndexer {
 		    audioInputStream = null;
 			try {
 				InputStream bufferedIn = new BufferedInputStream(waveStream);
-				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+				audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 			    //audioInputStream.skip(temp * buffersize);
 			} catch (UnsupportedAudioFileException e1) {
 				System.out.println(e1);
@@ -462,6 +462,8 @@ public class VideoIndexer {
 			// opens the audio channel
 			dataLine = null;
 			try {
+				int offset = temp * 30 * (int) audioFormat.getFrameRate() * audioFormat.getFrameSize() / numFrames;
+				System.out.println("skipping " + offset + " bytes");
 				audioInputStream.skip(temp * 30 * (int) audioFormat.getFrameRate() * audioFormat.getFrameSize() / numFrames);
 			    dataLine = (SourceDataLine) AudioSystem.getLine(info);
 			    dataLine.open(audioFormat, buffersize);
