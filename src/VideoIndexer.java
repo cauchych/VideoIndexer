@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
@@ -49,7 +50,6 @@ public class VideoIndexer {
     int width = 352;
     int numFrames = 720;
 
-    private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
     AudioInputStream audioInputStream;
     InputStream waveStream;
     Info info;
@@ -58,25 +58,26 @@ public class VideoIndexer {
     
 	int readBytes = 0;
 	int offset = 0;
-	byte[] audioBuffer = new byte[EXTERNAL_BUFFER_SIZE];
-	
+	byte[] audioBuffer; // = new byte[EXTERNAL_BUFFER_SIZE];;
+	int buffersize;
 	int currentVideo = 0;
+	File audio;
 	
 	public static void main(String[] args){
-			
-			VideoIndexer vi = new VideoIndexer();
-		
-		
+			VideoIndexer vi = new VideoIndexer();		
 	}
+	
 	public VideoIndexer(){
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.rgb"); // TODO change this path to your own
-			String filename = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.wav"; // TODO change this path to you own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
 
-			waveStream = new FileInputStream(filename);
-			
+			waveStream = new FileInputStream(audio);
+			int audiolen = (int) audio.length();
+			buffersize = (int) ((double) audiolen * 42.0 / 30000.0);
+			audioBuffer = new byte[buffersize];
 		    InputStream is = new FileInputStream(file);
 		    long len = file.length();
 		    byte[] bytes = new byte[(int)len];
@@ -212,7 +213,7 @@ public class VideoIndexer {
 		videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
 		dataLine.start();
 		audioTimer = new Timer();
-		audioTimer.schedule(new PlayAudio(), 0, 3000);
+		audioTimer.schedule(new PlayAudio(), 0, 42);
 	}
 	
 	public void pause(){
@@ -232,7 +233,14 @@ public class VideoIndexer {
 
 		audioTimer.cancel();
 		dataLine.stop();
-		/*
+		
+
+		try {
+			waveStream = new FileInputStream(audio);
+		} catch (FileNotFoundException e) {
+			System.out.println(e);
+			
+		}
 	    audioInputStream = null;
 		try {
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
@@ -258,7 +266,7 @@ public class VideoIndexer {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
 		}
-		*/
+		
 	}
 	
 	public void search(){
