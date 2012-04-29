@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -42,7 +45,8 @@ public class VideoIndexer {
 	MyPanel imgPanel = new MyPanel();
 	int videoFrame;
 	Timer videoTimer;
-	Timer audioTimer;
+	ScheduledThreadPoolExecutor audioTimer;
+	ScheduledFuture audioStopper;
 	JButton playButton, pauseButton, stopButton, searchButton;
 	MyListener listener;
 	VideoStatus status = VideoStatus.START;
@@ -70,8 +74,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
-			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
+			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav"); // TODO change this path to you own
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
@@ -217,8 +221,8 @@ public class VideoIndexer {
 			videoTimer = new Timer();
 			videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
 			dataLine.start();
-			audioTimer = new Timer();
-			audioTimer.schedule(new PlayAudio(), 0, 42);
+			audioTimer = new ScheduledThreadPoolExecutor(5);
+			audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 42, TimeUnit.MILLISECONDS);
 		}
 	}
 	
@@ -226,7 +230,7 @@ public class VideoIndexer {
 		if (status == VideoStatus.PLAYING){
 			status = VideoStatus.PAUSED;
 			videoTimer.cancel();
-			audioTimer.cancel();
+			audioTimer.shutdownNow();
 			dataLine.stop();	
 		}
 	}
@@ -239,7 +243,7 @@ public class VideoIndexer {
 	    imgPanel.img = vdo[currentVideo][videoFrame];
 	    imgPanel.repaint();	    
 
-		audioTimer.cancel();
+		audioTimer.shutdownNow();
 		dataLine.stop();
 		
 
@@ -288,6 +292,15 @@ public class VideoIndexer {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == playButton){
 				System.out.println("play pressed");
+
+				videoTimer = new Timer();
+				videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
+				
+			
+				dataLine.start();
+				audioTimer = new ScheduledThreadPoolExecutor(5);
+				audioStopper = audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 3000, TimeUnit.MILLISECONDS);
+				
 				play();
 			}else if (e.getSource() == pauseButton){
 				System.out.println("pause pressed");
@@ -317,21 +330,22 @@ public class VideoIndexer {
 	} // end of PlayVideo Timer class
 
 	
-	public class PlayAudio extends TimerTask{
+	public class PlayAudio implements Runnable {
 		public void run(){
 			try {
 				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
 				if (readBytes >= 0){
 				    dataLine.write(audioBuffer, 0, readBytes);
 				}else{
-					this.cancel();
+					dataLine.drain();
+				    dataLine.close();
+					audioTimer.shutdownNow();
 					return;
 				}
 				
 			} catch (IOException e) {
 				System.out.println();
 			}
-			
 		}
 	}
 	
