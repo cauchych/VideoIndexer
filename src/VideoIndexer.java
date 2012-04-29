@@ -74,8 +74,8 @@ public class VideoIndexer {
 
 
 		try{
-			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb"); // TODO change this path to your own
-			audio = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav"); // TODO change this path to you own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
 
 			waveStream = new FileInputStream(audio);
 			int audiolen = (int) audio.length();
@@ -218,6 +218,7 @@ public class VideoIndexer {
 	public void play(){
 		if (status != VideoStatus.PLAYING){
 			status = VideoStatus.PLAYING;
+					
 			videoTimer = new Timer();
 			videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
 			dataLine.start();
@@ -291,16 +292,7 @@ public class VideoIndexer {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == playButton){
-				System.out.println("play pressed");
-
-				videoTimer = new Timer();
-				videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
-				
-			
-				dataLine.start();
-				audioTimer = new ScheduledThreadPoolExecutor(5);
-				audioStopper = audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 3000, TimeUnit.MILLISECONDS);
-				
+				System.out.println("play pressed");				
 				play();
 			}else if (e.getSource() == pauseButton){
 				System.out.println("pause pressed");
