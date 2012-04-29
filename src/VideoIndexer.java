@@ -3,12 +3,16 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
@@ -29,12 +33,15 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 
 public class VideoIndexer {
 	
-	BufferedImage vdo[] = new BufferedImage[720];
+	private final int videoCount = 1;
+	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
+	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
 	int videoFrame;
 	Timer videoTimer;
@@ -42,12 +49,11 @@ public class VideoIndexer {
 	ScheduledFuture audioStopper;
 	JButton playButton, pauseButton, stopButton, searchButton;
 	MyListener listener;
-
+	VideoStatus status = VideoStatus.START;
     int height = 288;
     int width = 352;
     int numFrames = 720;
 
-    private final int EXTERNAL_BUFFER_SIZE = 524288; // 128Kb
     AudioInputStream audioInputStream;
     InputStream waveStream;
     Info info;
@@ -55,23 +61,27 @@ public class VideoIndexer {
     SourceDataLine dataLine;
     
 	int readBytes = 0;
-	byte[] audioBuffer = new byte[EXTERNAL_BUFFER_SIZE];
+	int offset = 0;
+	byte[] audioBuffer; // = new byte[EXTERNAL_BUFFER_SIZE];;
+	int buffersize;
+	int currentVideo = 0;
+	File audio;
 	
 	public static void main(String[] args){
-			
-			VideoIndexer vi = new VideoIndexer();
-		
-		
+			VideoIndexer vi = new VideoIndexer();		
 	}
+	
 	public VideoIndexer(){
 
 
 		try{
-			File file = new File("C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.rgb"); // TODO change this path to your own
-			String filename = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.wav"; // TODO change this path to you own
+			File file = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb"); // TODO change this path to your own
+			audio = new File("C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav"); // TODO change this path to you own
 
-			waveStream = new FileInputStream(filename);
-			
+			waveStream = new FileInputStream(audio);
+			int audiolen = (int) audio.length();
+			buffersize = (int) ((double) audiolen * 42.0 / 30000.0);
+			audioBuffer = new byte[buffersize];
 		    InputStream is = new FileInputStream(file);
 		    long len = file.length();
 		    byte[] bytes = new byte[(int)len];
@@ -88,7 +98,7 @@ public class VideoIndexer {
 	    	for(int i = 0; i < numFrames; i++){
 	    		ind = maxInd * i * 3;
 	    		//System.out.println("ind in outer loop: " + ind);
-	    		vdo[i] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	    		vdo[currentVideo][i] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 				for(int y = 0; y < height; y++){
 			
 					for(int x = 0; x < width; x++){
@@ -101,7 +111,7 @@ public class VideoIndexer {
 						int pix = 0xff000000 | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
 						//int pix = ((a << 24) + (r << 16) + (g << 8) + b);
 						//System.out.println("x: " + x + "; y: "+ y + "; pix " + pix + "; ind: " + ind);
-						vdo[i].setRGB(x,y,pix);
+						vdo[currentVideo][i].setRGB(x,y,pix);
 						ind++;
 					}
 				}
@@ -120,6 +130,9 @@ public class VideoIndexer {
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
 	    JPanel container = new JPanel();
 	    container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+
+	    JScrollPane scrollContainer = new JScrollPane(container);
+	    
 	    JPanel topPanel = new JPanel();
 	    topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
 	    JPanel bottomPanel = new JPanel();
@@ -153,18 +166,22 @@ public class VideoIndexer {
 	    topPanel.add(imgPanel);
 	    topPanel.add(buttonPanel);
 	    
+	    for (int i = 0; i < videoCount; i++){
+	    	ImageStripPanel temp = new ImageStripPanel(i);
+	    	bottomPanel.add(temp);
+	    	temp.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    }
+
 	    bottomPanel.add(new JLabel("image strip of frames will go here"));
-	    
 	    container.add(topPanel);
 	    container.add(bottomPanel);
 	    
-	    frame.getContentPane().add(container, BorderLayout.CENTER);
-
+	    frame.getContentPane().add(scrollContainer, BorderLayout.CENTER);
 	    frame.pack();
 	    frame.setVisible(true); 	
 
 		videoFrame = 0;
-	    imgPanel.img = vdo[videoFrame];
+	    imgPanel.img = vdo[currentVideo][videoFrame];
 
 		audioInputStream = null;
 		try {
@@ -186,7 +203,7 @@ public class VideoIndexer {
 		dataLine = null;
 		try {
 		    dataLine = (SourceDataLine) AudioSystem.getLine(info);
-		    dataLine.open(audioFormat, EXTERNAL_BUFFER_SIZE);
+		    dataLine.open(audioFormat, buffersize);
 		} catch (LineUnavailableException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -194,6 +211,72 @@ public class VideoIndexer {
 	}
 
 	
+	public void play(){
+		status = VideoStatus.PLAYING;
+		videoTimer = new Timer();
+		videoTimer.schedule(new PlayVideo(), 0, 42); // 41.66	
+		dataLine.start();
+		audioTimer = new ScheduledThreadPoolExecutor(5);
+		audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 42, TimeUnit.MILLISECONDS);
+	}
+	
+	public void pause(){
+		status = VideoStatus.PAUSED;
+		videoTimer.cancel();
+		audioTimer.shutdownNow();
+		dataLine.stop();	
+	}
+	
+	public void stop(){
+		status = VideoStatus.STOPPED;
+
+		videoTimer.cancel();
+		videoFrame = 0;
+	    imgPanel.img = vdo[currentVideo][videoFrame];
+	    imgPanel.repaint();	    
+
+		audioTimer.shutdownNow();
+		dataLine.stop();
+		
+
+		try {
+			waveStream = new FileInputStream(audio);
+		} catch (FileNotFoundException e) {
+			System.out.println(e);
+			
+		}
+	    audioInputStream = null;
+		try {
+			InputStream bufferedIn = new BufferedInputStream(waveStream);
+		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		} catch (UnsupportedAudioFileException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		} catch (IOException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		}
+	
+		// Obtain the information about the AudioInputStream
+		audioFormat = audioInputStream.getFormat();
+		info = new Info(SourceDataLine.class, audioFormat);
+	
+		// opens the audio channel
+		dataLine = null;
+		try {
+		    dataLine = (SourceDataLine) AudioSystem.getLine(info);
+		    dataLine.open(audioFormat, buffersize);
+		} catch (LineUnavailableException e1) {
+			System.out.println(e1);
+		    //throw new PlayWaveException(e1);
+		}
+		
+	}
+	
+	public void search(){
+		status = VideoStatus.SEARCHING;
+		//	TODO
+	}
 	
 	public class MyListener implements ActionListener{
 
@@ -210,6 +293,7 @@ public class VideoIndexer {
 				audioTimer = new ScheduledThreadPoolExecutor(5);
 				audioStopper = audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 3000, TimeUnit.MILLISECONDS);
 				
+				play();
 			}else if (e.getSource() == pauseButton){
 				System.out.println("pause pressed");
 				videoTimer.cancel();
@@ -224,21 +308,13 @@ public class VideoIndexer {
 				
 				//audioTimer.shutdownNow();
 				
-				
-				
+				pause();
 			}else if (e.getSource() == stopButton){
 				System.out.println("stop pressed");
-				//videoTimer.cancel();
-				//videoFrame = 0;
-			    //imgPanel.img = vdo[videoFrame];
-			    //imgPanel.repaint();
-
-				int readBytes = 0;
-				byte[] audioBuffer = new byte[EXTERNAL_BUFFER_SIZE];
-				
+				stop();
 			}else if (e.getSource() == searchButton){
 				System.out.println("search pressed");
-				// TODO nothing for now
+				search();
 			}			
 		}
 		
@@ -247,12 +323,12 @@ public class VideoIndexer {
 	public class PlayVideo extends TimerTask{
 		public void run(){
 			videoFrame++;
-			if (videoFrame >= vdo.length){
+			if (videoFrame >= vdo[currentVideo].length){
 				videoFrame = 0;
 				this.cancel();
 				return;
 			}
-			imgPanel.img = vdo[videoFrame];
+			imgPanel.img = vdo[currentVideo][videoFrame];
 			imgPanel.repaint();
 		}
 	} // end of PlayVideo Timer class
@@ -279,6 +355,7 @@ public class VideoIndexer {
 	
 	public class MyPanel extends JPanel{
 		public BufferedImage img;
+		int imgFrame = -1;
 		
 		MyPanel(BufferedImage i){
 			super();
@@ -305,6 +382,94 @@ public class VideoIndexer {
 			}
 		}
 		
+		public String toString(){
+			return("imgFrame: " + imgFrame);
+		}
+		
 
 	} // end MyPanel class
+	
+	public class ImageStripPanel extends JPanel{
+		int numPanelFrames = 10;
+		int newHeight = 50;
+		int newWidth = 61;
+		MyPanel panels[] = new MyPanel[numPanelFrames];
+		MyMouseListener mml;
+		
+		public ImageStripPanel(int videoIndex){
+			super();
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+			JScrollPane scrollpane = new JScrollPane(panel);
+			this.add(scrollpane);
+			this.setPreferredSize(new Dimension(350, 70));
+			scrollpane.setPreferredSize(new Dimension(350, 70));
+			
+			this.setPreferredSize(new Dimension(350, 50));
+			mml = new MyMouseListener();
+			
+			for (int i = 0; i < numPanelFrames; i++){
+				BufferedImage tempImg = vdo[videoIndex][numFrames * i / numPanelFrames];
+				
+				BufferedImage newImg = new BufferedImage(newWidth, newHeight, tempImg.getType());  
+		        Graphics2D g2d = newImg.createGraphics();  
+		        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
+		        g2d.drawImage(tempImg, 0, 0, newWidth, newHeight, 0, 0, width, height, null);  
+		        g2d.dispose();  
+		        
+		        panels[i] = new MyPanel(newImg);
+		        panels[i].imgFrame = numFrames * i / numPanelFrames;
+		        panels[i].setPreferredSize(new Dimension(newWidth + 2, newHeight));
+		        panels[i].addMouseListener(mml);
+		        panel.add(panels[i]);
+			}
+			
+		}
+		
+		public ImageStripPanel(){
+			super();
+		}
+	} // end ImageStripPanel
+	
+	
+	public class MyMouseListener implements MouseListener{
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			//System.out.println(arg0.getSource().toString());
+			if (status == VideoStatus.PLAYING){
+				pause();
+			}
+			videoFrame = ((MyPanel)arg0.getSource()).imgFrame;
+			imgPanel.img = vdo[currentVideo][videoFrame];
+			imgPanel.repaint();
+			//play();
+			
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 }
