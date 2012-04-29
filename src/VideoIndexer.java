@@ -296,18 +296,6 @@ public class VideoIndexer {
 				play();
 			}else if (e.getSource() == pauseButton){
 				System.out.println("pause pressed");
-				videoTimer.cancel();
-				audioTimer.shutdownNow();
-				audioStopper.cancel(true);
-				try {
-					audioTimer.awaitTermination(30, TimeUnit.SECONDS);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				//audioTimer.shutdownNow();
-				
 				pause();
 			}else if (e.getSource() == stopButton){
 				System.out.println("stop pressed");
