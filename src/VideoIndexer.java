@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -35,7 +38,8 @@ public class VideoIndexer {
 	MyPanel imgPanel = new MyPanel();
 	int videoFrame;
 	Timer videoTimer;
-	Timer audioTimer;
+	ScheduledThreadPoolExecutor audioTimer;
+	ScheduledFuture audioStopper;
 	JButton playButton, pauseButton, stopButton, searchButton;
 	MyListener listener;
 
@@ -203,13 +207,22 @@ public class VideoIndexer {
 				
 			
 				dataLine.start();
-				audioTimer = new Timer();
-				audioTimer.schedule(new PlayAudio(), 0, 3000);
+				audioTimer = new ScheduledThreadPoolExecutor(5);
+				audioStopper = audioTimer.scheduleAtFixedRate(new PlayAudio(), 0, 3000, TimeUnit.MILLISECONDS);
 				
 			}else if (e.getSource() == pauseButton){
 				System.out.println("pause pressed");
 				videoTimer.cancel();
-				audioTimer.cancel();
+				audioTimer.shutdownNow();
+				audioStopper.cancel(true);
+				try {
+					audioTimer.awaitTermination(30, TimeUnit.SECONDS);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				//audioTimer.shutdownNow();
 				
 				
 				
@@ -245,21 +258,22 @@ public class VideoIndexer {
 	} // end of PlayVideo Timer class
 
 	
-	public class PlayAudio extends TimerTask{
+	public class PlayAudio implements Runnable {
 		public void run(){
 			try {
 				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
 				if (readBytes >= 0){
 				    dataLine.write(audioBuffer, 0, readBytes);
 				}else{
-					this.cancel();
+					dataLine.drain();
+				    dataLine.close();
+					audioTimer.shutdownNow();
 					return;
 				}
 				
 			} catch (IOException e) {
 				System.out.println();
 			}
-			
 		}
 	}
 	
