@@ -199,7 +199,7 @@ public class VideoIndexer {
 		dataLine = null;
 		try {
 		    dataLine = (SourceDataLine) AudioSystem.getLine(info);
-		    dataLine.open(audioFormat, EXTERNAL_BUFFER_SIZE);
+		    dataLine.open(audioFormat, buffersize);
 		} catch (LineUnavailableException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -261,7 +261,7 @@ public class VideoIndexer {
 		dataLine = null;
 		try {
 		    dataLine = (SourceDataLine) AudioSystem.getLine(info);
-		    dataLine.open(audioFormat, EXTERNAL_BUFFER_SIZE);
+		    dataLine.open(audioFormat, buffersize);
 		} catch (LineUnavailableException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
