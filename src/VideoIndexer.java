@@ -66,7 +66,7 @@ public class VideoIndexer {
     SourceDataLine dataLine;
     
 	int readBytes = 0;
-	byte[] audioBuffer; // = new byte[EXTERNAL_BUFFER_SIZE];;
+	byte[][] audioBuffer; // = new byte[EXTERNAL_BUFFER_SIZE];;
 	int buffersize;
 	int currentVideo = 0; // TODO change this to whatever video you want
 	File audio;
@@ -109,7 +109,8 @@ public class VideoIndexer {
 		
 
 		try{
-			
+
+			audioBuffer = new byte[videoCount][];
 			for(int newVideoIndex=0; newVideoIndex < videoCount; newVideoIndex++){
 				File file = new File(videofilenames[newVideoIndex]);
 				audio = new File(audiofilenames[newVideoIndex]);
@@ -119,8 +120,8 @@ public class VideoIndexer {
 				System.out.println("audiolen: " + audiolen);
 				buffersize = (int) Math.round((double) audiolen * 42.0 / 30000.0);
 				System.out.println("buffersize: " + buffersize);
-				audioBuffer = new byte[buffersize];
 			    InputStream is = new FileInputStream(file);
+			    audioBuffer[newVideoIndex] = new byte[buffersize];
 			    long len = file.length();
 			    byte[] bytes = new byte[(int)len];
 			    
@@ -221,8 +222,13 @@ public class VideoIndexer {
 		videoFrame = 0;
 	    imgPanel.img = vdo[currentVideo][videoFrame];
 
+
+		audio = new File(audiofilenames[currentVideo]);
+
 		audioInputStream = null;
 		try {
+
+			waveStream = new FileInputStream(audio);
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
 		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
@@ -437,9 +443,9 @@ public class VideoIndexer {
 	public class PlayAudio implements Runnable {
 		public void run(){
 			try {
-				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
+				readBytes = audioInputStream.read(audioBuffer[currentVideo], 0, audioBuffer[currentVideo].length);
 				if (readBytes >= 0){
-				    dataLine.write(audioBuffer, 0, readBytes);
+				    dataLine.write(audioBuffer[currentVideo], 0, readBytes);
 				}else{
 					dataLine.drain();
 				    dataLine.close();
@@ -456,6 +462,7 @@ public class VideoIndexer {
 	public class MyPanel extends JPanel{
 		public BufferedImage img;
 		int imgFrame = -1;
+		int videoIndex = -1;
 		
 		MyPanel(BufferedImage i){
 			super();
@@ -502,10 +509,8 @@ public class VideoIndexer {
 			panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 			JScrollPane scrollpane = new JScrollPane(panel);
 			this.add(scrollpane);
-			this.setPreferredSize(new Dimension(350, 85));
-			scrollpane.setPreferredSize(new Dimension(350, 85));
-			
-			this.setPreferredSize(new Dimension(350, 85));
+			scrollpane.setPreferredSize(new Dimension(400, 70));			
+			this.setPreferredSize(new Dimension(400, 80));
 			mml = new MyMouseListener();
 			int highlighti = -1; 
 			if (highlightFrame != -1){ // need to highlight a frame
@@ -525,6 +530,7 @@ public class VideoIndexer {
 		        g2d.dispose();  
 		        
 		        panels[i] = new MyPanel(newImg);
+		        panels[i].videoIndex = videoIndex;
 				if (i == highlighti){
 			        panels[i].imgFrame = highlightFrame;
 			        panels[i].setBorder(BorderFactory.createMatteBorder(5, 5, 5, 5, Color.RED));
@@ -553,6 +559,12 @@ public class VideoIndexer {
 			if (status == VideoStatus.PLAYING){
 				pause();
 			}
+			int videoIndex = ((MyPanel)arg0.getSource()).videoIndex;	
+			if(videoIndex != currentVideo){
+				currentVideo = videoIndex;
+				audio = new File(audiofilenames[currentVideo]);
+			}
+			
 			int temp = ((MyPanel)arg0.getSource()).imgFrame;
 
 			videoFrame = temp;
