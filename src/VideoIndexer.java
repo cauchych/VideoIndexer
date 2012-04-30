@@ -230,7 +230,7 @@ public class VideoIndexer {
 
 			waveStream = new FileInputStream(audio);
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -444,9 +444,37 @@ public class VideoIndexer {
 	public class PlayAudio implements Runnable {
 		public void run(){
 			try {
+
 				readBytes = audioInputStream.read(audioBuffer[currentVideo], 0, audioBuffer[currentVideo].length);
+
 				if (readBytes >= 0){
+					//System.out.println(readBytes);
+					//System.arraycopy(audioBuffer, 0, temp, 0, audioBuffer.length);
+					/*int[] toReturn = new int[temp.length / 2];
+				    int index = 0;
+				    
+				    for (int audioByte = 0; audioByte < temp.length;)
+				    {
+				        //for (int channel = 0; channel < nbChannels; channel++)
+				        //{
+				            // Do the byte to sample conversion.
+				            int low = (int) temp[audioByte];
+				            audioByte++;
+				            if (audioByte < temp.length) {
+					            int high = (int) temp[audioByte];
+					            audioByte++;
+					            
+					            int sample = (high << 8) + (low & 0x00ff);
+					            if (sample > 9000)
+					            System.out.println(sample);
+					            toReturn[index] = sample;
+				            }
+				        //}
+				        index++;
+				    }*/
+
 				    dataLine.write(audioBuffer[currentVideo], 0, readBytes);
+				    
 				}else{
 					dataLine.drain();
 				    dataLine.close();
@@ -583,7 +611,7 @@ public class VideoIndexer {
 		    audioInputStream = null;
 			try {
 				InputStream bufferedIn = new BufferedInputStream(waveStream);
-				audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
 			    //audioInputStream.skip(temp * buffersize);
 			} catch (UnsupportedAudioFileException e1) {
 				System.out.println(e1);
