@@ -332,10 +332,10 @@ public class VideoIndexer {
 						temp[i] = audioBuffer[i];
 					}
 					//System.arraycopy(audioBuffer, 0, temp, 0, audioBuffer.length);
-					int[] toReturn = new int[temp.length / 2];
+					/*int[] toReturn = new int[temp.length / 2];
 				    int index = 0;
 				    
-				    /*for (int audioByte = 0; audioByte < temp.length;)
+				    for (int audioByte = 0; audioByte < temp.length;)
 				    {
 				        //for (int channel = 0; channel < nbChannels; channel++)
 				        //{
@@ -347,6 +347,7 @@ public class VideoIndexer {
 					            audioByte++;
 					            
 					            int sample = (high << 8) + (low & 0x00ff);
+					            if (sample > 9000)
 					            System.out.println(sample);
 					            toReturn[index] = sample;
 				            }
@@ -354,23 +355,7 @@ public class VideoIndexer {
 				        index++;
 				    }*/
 
-				    //System.out.println("Test");
-				   
-				  // System.out.println(toReturn.length);
-				   //for (int i = 0; i < toReturn.length; i++) {
-					//   System.out.print(toReturn[i] + " ");
-				   //}
-				   //System.out.println();
 				    dataLine.write(audioBuffer, 0, readBytes);
-				    //for (int i = 0; i < audioBuffer.length; i++) {
-				    //	System.out.print(audioBuffer[i] + " ");
-				    //}
-				    //System.out.println();
-				   //int temp[] = new int[getUnscaledAmplitude(audioBuffer).length];
-				    
-				    //int[][] temp = getUnscaledAmplitude(audioBuffer,1);
-				    //for (int i = 0; i < temp.length; i++)
-				    //System.out.print(temp[0][i] + " ");
 				}else{
 					dataLine.drain();
 				    dataLine.close();
