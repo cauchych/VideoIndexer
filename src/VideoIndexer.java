@@ -185,7 +185,7 @@ public class VideoIndexer {
 		audioInputStream = null;
 		try {
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -324,8 +324,53 @@ public class VideoIndexer {
 		public void run(){
 			try {
 				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
+				
 				if (readBytes >= 0){
+					//System.out.println(readBytes);
+					int temp[] = new int[audioBuffer.length];
+					for (int i = 0; i < audioBuffer.length; i++) {
+						temp[i] = audioBuffer[i];
+					}
+					//System.arraycopy(audioBuffer, 0, temp, 0, audioBuffer.length);
+					int[] toReturn = new int[temp.length / 2];
+				    int index = 0;
+				    
+				    /*for (int audioByte = 0; audioByte < temp.length;)
+				    {
+				        //for (int channel = 0; channel < nbChannels; channel++)
+				        //{
+				            // Do the byte to sample conversion.
+				            int low = (int) temp[audioByte];
+				            audioByte++;
+				            if (audioByte < temp.length) {
+					            int high = (int) temp[audioByte];
+					            audioByte++;
+					            
+					            int sample = (high << 8) + (low & 0x00ff);
+					            System.out.println(sample);
+					            toReturn[index] = sample;
+				            }
+				        //}
+				        index++;
+				    }*/
+
+				    //System.out.println("Test");
+				   
+				  // System.out.println(toReturn.length);
+				   //for (int i = 0; i < toReturn.length; i++) {
+					//   System.out.print(toReturn[i] + " ");
+				   //}
+				   //System.out.println();
 				    dataLine.write(audioBuffer, 0, readBytes);
+				    //for (int i = 0; i < audioBuffer.length; i++) {
+				    //	System.out.print(audioBuffer[i] + " ");
+				    //}
+				    //System.out.println();
+				   //int temp[] = new int[getUnscaledAmplitude(audioBuffer).length];
+				    
+				    //int[][] temp = getUnscaledAmplitude(audioBuffer,1);
+				    //for (int i = 0; i < temp.length; i++)
+				    //System.out.print(temp[0][i] + " ");
 				}else{
 					dataLine.drain();
 				    dataLine.close();
@@ -336,6 +381,30 @@ public class VideoIndexer {
 			} catch (IOException e) {
 				System.out.println();
 			}
+		}
+		
+		public int[] getUnscaledAmplitude(byte[] eightBitByteArray)
+		{
+		    int[] toReturn = new int[eightBitByteArray.length / 2];
+		    int index = 0;
+
+		    for (int audioByte = 0; audioByte < eightBitByteArray.length;)
+		    {
+		        //for (int channel = 0; channel < nbChannels; channel++)
+		        //{
+		            // Do the byte to sample conversion.
+		            int low = (int) eightBitByteArray[audioByte];
+		            audioByte++;
+		            int high = (int) eightBitByteArray[audioByte];
+		            audioByte++;
+		            int sample = (high << 8) + (low & 0x00ff);
+		            //System.out.println(sample);
+		            toReturn[index] = sample;
+		        //}
+		        index++;
+		    }
+
+		    return toReturn;
 		}
 	}
 	
@@ -443,7 +512,7 @@ public class VideoIndexer {
 		    audioInputStream = null;
 			try {
 				InputStream bufferedIn = new BufferedInputStream(waveStream);
-				audioInputStream = AudioSystem.getAudioInputStream(waveStream);
+				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
 			    //audioInputStream.skip(temp * buffersize);
 			} catch (UnsupportedAudioFileException e1) {
 				System.out.println(e1);
