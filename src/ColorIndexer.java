@@ -160,8 +160,8 @@ public class ColorIndexer {
 			if (htemp != -1){
 				h = (int) Math.round(htemp * 16);
 			}
-			s = (int) Math.round(stemp * 4);
-			v = (int) Math.round(vtemp * 4);
+			s = (int) Math.round(stemp * 8);
+			v = (int) Math.round(vtemp * 8);
 
 		}
 		

@@ -43,7 +43,7 @@ import javax.swing.border.EmptyBorder;
 
 public class VideoIndexer {
 	
-	private final int videoCount = 2;
+	private final int videoCount = 3;
 	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
@@ -84,26 +84,26 @@ public class VideoIndexer {
 		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb";
 		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.rgb";
 		videofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.rgb";
-		videofilenames[3] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb";
+		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb";
 		videofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.rgb";
 		videofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.rgb";
 		videofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.rgb";
 		videofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.rgb";
 		videofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.rgb";
-		videofilenames[9] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
+		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
 		videofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.rgb";
 		videofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.rgb";
 
 		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav";
 		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.wav";
 		audiofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.wav";
-		audiofilenames[3] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav";
+		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav";
 		audiofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.wav";
 		audiofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.wav";
 		audiofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.wav";
 		audiofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.wav";
 		audiofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.wav";
-		audiofilenames[9] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.wav";
+		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.wav";
 		audiofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.wav";
 		audiofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.wav";
 		
@@ -211,7 +211,7 @@ public class VideoIndexer {
 	    	temp.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    }
 
-	    bottomPanel.add(new JLabel("image strip of frames will go here"));
+	   // bottomPanel.add(new JLabel("image strip of frames will go here"));
 	    container.add(topPanel);
 	    container.add(bottomPanel);
 	    
@@ -376,6 +376,7 @@ public class VideoIndexer {
 					bottomPanel.add(new ImageStripPanel(i, colorFrame[i]));
 				}
 			}
+			bottomPanel.repaint();
 			
 		}catch(Exception e){
 			e.printStackTrace();
@@ -401,7 +402,7 @@ public class VideoIndexer {
 		int s = Math.abs(s1 - s2);
 		int v = Math.abs(v1 - v2);
 		
-		return (h * h) + s + v;
+		return (h * 2) + s + v;
 	}
 	
 	
@@ -477,7 +478,7 @@ public class VideoIndexer {
 			super.paintComponent(g);
 			Graphics2D g2d = (Graphics2D) g;
 			if (img != null){
-				g2d.drawImage(img, null, 0,0);
+				g2d.drawImage(img, null, 3,3);
 			}
 		}
 		
@@ -485,7 +486,7 @@ public class VideoIndexer {
 			super.paint(g);
 			Graphics2D g2d = (Graphics2D) g;
 			if (img != null){
-				g2d.drawImage(img, null, 0,0);
+				g2d.drawImage(img, null, 3,3);
 			}
 		}
 		
@@ -509,8 +510,8 @@ public class VideoIndexer {
 			panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 			JScrollPane scrollpane = new JScrollPane(panel);
 			this.add(scrollpane);
-			scrollpane.setPreferredSize(new Dimension(400, 70));			
-			this.setPreferredSize(new Dimension(400, 80));
+			scrollpane.setPreferredSize(new Dimension(400, 75));			
+			this.setPreferredSize(new Dimension(400, 85));
 			mml = new MyMouseListener();
 			int highlighti = -1; 
 			if (highlightFrame != -1){ // need to highlight a frame
@@ -537,10 +538,10 @@ public class VideoIndexer {
 				}else{
 			        panels[i].imgFrame = numFrames * i / numPanelFrames;
 				}
-		        panels[i].imgFrame = numFrames * i / numPanelFrames;
-		        panels[i].setPreferredSize(new Dimension(newWidth + 2, newHeight));
+		        panels[i].setPreferredSize(new Dimension(newWidth + 5, newHeight + 5));
 		        panels[i].addMouseListener(mml);
 		        panel.add(panels[i]);
+		        panels[i].repaint();
 			}
 			
 		}
@@ -601,9 +602,10 @@ public class VideoIndexer {
 			// opens the audio channel
 			dataLine = null;
 			try {
-				int offset = temp * 30 * (int) audioFormat.getFrameRate() * audioFormat.getFrameSize() / numFrames;
-				System.out.println("skipping " + offset + " bytes");
-				audioInputStream.skip(temp * 30 * (int) audioFormat.getFrameRate() * audioFormat.getFrameSize() / numFrames);
+				//System.out.println("img frame temp: " + temp);
+				long offset = temp * 30 * (long) audioFormat.getFrameRate() * (long)audioFormat.getFrameSize() / (long)numFrames;
+				System.out.println("skipping " + (long)offset + " bytes");				
+				audioInputStream.skip(temp * 30 * (long) audioFormat.getFrameRate() * (long)audioFormat.getFrameSize() / (long)numFrames);
 			    dataLine = (SourceDataLine) AudioSystem.getLine(info);
 			    dataLine.open(audioFormat, buffersize);
 			} catch (LineUnavailableException e1) {
