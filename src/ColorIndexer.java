@@ -35,7 +35,7 @@ public class ColorIndexer {
 			FileWriter fw = new FileWriter("colorindex.txt");
 			BufferedWriter bw = new BufferedWriter(fw);
 			
-			for (int j = 0; j < 3; j++){
+			for (int j = 0; j < 12; j++){
 				File file = new File(filenames[j]);
 				String[] colorindex = new String[numFrames];
 				bw.write("" + j + " ");
@@ -56,9 +56,9 @@ public class ColorIndexer {
 		    		ind = maxInd * i * 3;
 	
 				    HashMap<String, Integer> histogram = new HashMap<String, Integer>();
-					for(int y = 0; y < height; y++){
+					for(int y = 0; y < height; y+=10){
 				
-						for(int x = 0; x < width; x++){
+						for(int x = 0; x < width; x+=10){
 					 
 							int r = (int) bytes[ind];
 							int g = (int) bytes[ind+height*width];
@@ -113,26 +113,7 @@ public class ColorIndexer {
 		}
 	}
 	
-	public int getHsvDifference(String hsv1, String hsv2){
-		int h1 = Integer.parseInt(hsv1.substring(0, 2));
-		int s1 = Integer.parseInt(hsv1.substring(2, 3));
-		int v1 = Integer.parseInt(hsv1.substring(3));
-		int h2 = Integer.parseInt(hsv2.substring(0, 2));
-		int s2 = Integer.parseInt(hsv2.substring(2, 3));
-		int v2 = Integer.parseInt(hsv2.substring(3));
-		
-		int h = Math.abs(h1 - h2);
-		if (h > 8){
-			int diff = h - 8;
-			h = h - (2 * diff);
-		}
-		
-		int s = Math.abs(s1 - s2);
-		int v = Math.abs(v1 - v2);
-		
-		return (h * h) + s + v;
-	}
-	
+
 	
 	public class MyHSV{
 		int h, s, v;
