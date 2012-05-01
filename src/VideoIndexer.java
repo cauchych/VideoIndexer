@@ -76,6 +76,8 @@ public class VideoIndexer {
 	
 	String[][] colorIndex = new String[videoCount][numFrames];
 	int[][] audioIndex = new int[videoCount][numFrames];
+	int[][] motionIndex = new int[videoCount][numFrames];
+	boolean readInIndex = false;
 	String[] videofilenames = new String[12];
 	String[] audiofilenames = new String[12];
 	
@@ -383,36 +385,48 @@ public class VideoIndexer {
 		}
 		status = VideoStatus.SEARCHING;
 		System.out.print("\nSearching...");
-		//	TODO motion, audio
 		try{
 			
 			//read in color index
-			FileInputStream cfstream = new FileInputStream("colorindex.txt");
-			DataInputStream cin = new DataInputStream(cfstream);
-			BufferedReader cbr = new BufferedReader(new InputStreamReader(cin));
-			FileInputStream afstream = new FileInputStream("audioindex.txt");
-			DataInputStream ain = new DataInputStream(afstream);
-			BufferedReader abr = new BufferedReader(new InputStreamReader(ain));
-			String cline, aline;
-			int count = 0;
-			while ((cline = cbr.readLine()) != null && (aline = abr.readLine()) != null && count < videoCount)   { // read in color index into an array
-				
-				StringTokenizer cst = new StringTokenizer(cline);
-				StringTokenizer ast = new StringTokenizer(aline);
-				int videoIndex = Integer.parseInt(cst.nextToken());
-				ast.nextToken();
-					for(int i = 0; i < numFrames; i++){
-						colorIndex[videoIndex][i] = cst.nextToken().trim();
-						audioIndex[videoIndex][i] = Integer.parseInt(ast.nextToken());
-					}
-				
-				count++;
+			if (!readInIndex){
+				FileInputStream cfstream = new FileInputStream("colorindex.txt");
+				DataInputStream cin = new DataInputStream(cfstream);
+				BufferedReader cbr = new BufferedReader(new InputStreamReader(cin));
+				FileInputStream afstream = new FileInputStream("audioindex.txt");
+				DataInputStream ain = new DataInputStream(afstream);
+				BufferedReader abr = new BufferedReader(new InputStreamReader(ain));
+				FileInputStream mfstream = new FileInputStream("montionindex.txt");
+				DataInputStream min = new DataInputStream(mfstream);
+				BufferedReader mbr = new BufferedReader(new InputStreamReader(min));
+				String cline, aline, mline;
+				int count = 0;
+				while ((cline = cbr.readLine()) != null && (aline = abr.readLine()) != null &&  (mline = mbr.readLine()) != null && count < videoCount)   { // read in color index into an array
+					
+					StringTokenizer cst = new StringTokenizer(cline);
+					StringTokenizer ast = new StringTokenizer(aline);
+					StringTokenizer mst = new StringTokenizer(mline);
+					int videoIndex = Integer.parseInt(cst.nextToken());
+					ast.nextToken();
+					mst.nextToken();
+						for(int i = 0; i < numFrames; i++){
+							colorIndex[videoIndex][i] = cst.nextToken().trim();
+							audioIndex[videoIndex][i] = Integer.parseInt(ast.nextToken());
+							motionIndex[videoIndex][i]= Integer.parseInt(mst.nextToken());
+						}
+					
+					count++;
+				}
+				readInIndex = true;
+				cin.close();
+				ain.close();
+				min.close();
 			}
 
 			int[] highlightFrame = new int[videoCount]; // tells you which frame to highlight for each video
 			double[] minDiffs = new double[videoCount];
 			String currentHSV = colorIndex[currentVideo][videoFrame];
 			int currentAudio = audioIndex[currentVideo][videoFrame];
+			int currentMotion = audioIndex[currentVideo][videoFrame];
 			
 			double cOffset, aOffset, mOffset;
 			if (colorSlider.getValue() != 0){
@@ -434,12 +448,13 @@ public class VideoIndexer {
 			}
 			
 			for(int i = 0; i < videoCount; i++){	
-				double minDiff = 32 * 2; // this is max difference
+				double minDiff = 32 * 3; // this is max difference
 				int minFrame = 0;
 				if (i != currentVideo){ // don't compare video to itself
 					for(int j = 0; j < numFrames; j++){
 						double newDiff = (getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset)
-										+ (Math.abs(currentAudio - audioIndex[i][j]) * aOffset);
+										+ (Math.abs(currentAudio - audioIndex[i][j]) * aOffset)
+										+ (Math.abs(currentMotion - motionIndex[i][j]) * mOffset);
 						if (newDiff < minDiff){
 							minDiff = newDiff;
 							minFrame = j;
@@ -451,8 +466,6 @@ public class VideoIndexer {
 				highlightFrame[i] = minFrame;
 				minDiffs[i] = minDiff;
 			}
-			cin.close();
-			ain.close();
 			
 			int[] sorted = new int[videoCount - 1];
 			for (int i = 0; i < sorted.length; i++){
@@ -462,18 +475,18 @@ public class VideoIndexer {
 				sorted[currentVideo] = videoCount - 1;
 			}
 			
-			int min;
+			int min1;
 			for (int i=0; i< sorted.length; i++){
-				min = i;
+				min1 = i;
 				for (int j=i; j<sorted.length; j++){
-					if (minDiffs[sorted[j]] < minDiffs[sorted[min]]){
-						min = j;
+					if (minDiffs[sorted[j]] < minDiffs[sorted[min1]]){
+						min1 = j;
 					}
 				}
-				if(min != i){
+				if(min1 != i){
 					int temp = sorted[i];
-					sorted[i] = sorted[min];
-					sorted[min] = temp;
+					sorted[i] = sorted[min1];
+					sorted[min1] = temp;
 				}
 				
 			}
