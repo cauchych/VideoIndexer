@@ -45,7 +45,7 @@ import javax.swing.border.EmptyBorder;
 
 public class VideoIndexer {
 	
-	private final int videoCount = 1;
+	private final int videoCount = 3;
 	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
@@ -75,6 +75,7 @@ public class VideoIndexer {
 	File audio;
 	
 	String[][] colorIndex = new String[videoCount][numFrames];
+	int[][] audioIndex = new int[videoCount][numFrames];
 	String[] videofilenames = new String[12];
 	String[] audiofilenames = new String[12];
 	
@@ -83,33 +84,31 @@ public class VideoIndexer {
 	}
 	
 	public VideoIndexer(){
+		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb";
+		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.rgb";
+		videofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.rgb";
+		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb";
+		videofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.rgb";
+		videofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.rgb";
+		videofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.rgb";
+		videofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.rgb";
+		videofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.rgb";
+		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
+		videofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.rgb";
+		videofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.rgb";
 
-		videofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.rgb";
-		videofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo2/vdo2.rgb";
-		videofilenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.rgb";
-		videofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb";
-		videofilenames[4] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo5/vdo5.rgb";
-		videofilenames[5] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo6/vdo6.rgb";
-		videofilenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.rgb";
-		videofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.rgb";
-		videofilenames[8] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo9/vdo9.rgb";
-		videofilenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.rgb";
-		videofilenames[10] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo11/vdo11.rgb";
-		videofilenames[11] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo12/vdo12.rgb";
-
-		audiofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.wav";
-		audiofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo2/vdo2.wav";
-		audiofilenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.wav";
-		audiofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav";
-		audiofilenames[4] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo5/vdo5.wav";
-		audiofilenames[5] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo6/vdo6.wav";
-		audiofilenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.wav";
-		audiofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.wav";
-		audiofilenames[8] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo9/vdo9.wav";
-		audiofilenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.wav";
-		audiofilenames[10] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo11/vdo11.wav";
-		audiofilenames[11] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo12/vdo12.wav";
-		
+		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav";
+		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.wav";
+		audiofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.wav";
+		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav";
+		audiofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.wav";
+		audiofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.wav";
+		audiofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.wav";
+		audiofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.wav";
+		audiofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.wav";
+		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.wav";
+		audiofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.wav";
+		audiofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.wav";
 
 		try{
 
@@ -284,7 +283,7 @@ public class VideoIndexer {
 
 			waveStream = new FileInputStream(audio);
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -357,7 +356,7 @@ public class VideoIndexer {
 	    audioInputStream = null;
 		try {
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -389,24 +388,32 @@ public class VideoIndexer {
 		try{
 			
 			//read in color index
-			FileInputStream fstream = new FileInputStream("colorindex.txt");
-			DataInputStream in = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
-			String line;
+			FileInputStream cfstream = new FileInputStream("colorindex.txt");
+			DataInputStream cin = new DataInputStream(cfstream);
+			BufferedReader cbr = new BufferedReader(new InputStreamReader(cin));
+			FileInputStream afstream = new FileInputStream("audioindex.txt");
+			DataInputStream ain = new DataInputStream(afstream);
+			BufferedReader abr = new BufferedReader(new InputStreamReader(ain));
+			String cline, aline;
 			int count = 0;
-			while ((line = br.readLine()) != null && count < videoCount)   { // read in color index into an array
+			while ((cline = cbr.readLine()) != null && (aline = abr.readLine()) != null && count < videoCount)   { // read in color index into an array
 				
-				StringTokenizer st = new StringTokenizer(line);
-				int videoIndex = Integer.parseInt(st.nextToken());
+				StringTokenizer cst = new StringTokenizer(cline);
+				StringTokenizer ast = new StringTokenizer(aline);
+				int videoIndex = Integer.parseInt(cst.nextToken());
+				ast.nextToken();
 					for(int i = 0; i < numFrames; i++){
-						colorIndex[videoIndex][i] = st.nextToken().trim();
+						colorIndex[videoIndex][i] = cst.nextToken().trim();
+						audioIndex[videoIndex][i] = Integer.parseInt(ast.nextToken());
 					}
 				
 				count++;
 			}
 
-			int[] colorFrame = new int[videoCount]; // tells you which frame to highlight for each video
+			int[] highlightFrame = new int[videoCount]; // tells you which frame to highlight for each video
 			String currentHSV = colorIndex[currentVideo][videoFrame];
+			int currentAudio = audioIndex[currentVideo][videoFrame];
+			
 			double cOffset, aOffset, mOffset;
 			if (colorSlider.getValue() != 0){
 				cOffset = 1.0 / ((double) colorSlider.getValue() / 100.0);
@@ -427,11 +434,12 @@ public class VideoIndexer {
 			}
 			
 			for(int i = 0; i < videoCount; i++){	
-				int minDiff = 32; // this is max difference
+				int minDiff = 32 * 2; // this is max difference
 				int minFrame = 0;
 				if (i != currentVideo){ // don't compare video to itself
 					for(int j = 0; j < numFrames; j++){
-						int newDiff = (int) Math.round(getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset);
+						int newDiff = (int) Math.round(getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset)
+										+ (int)(Math.abs(currentAudio - audioIndex[i][j]) * aOffset);
 						if (newDiff < minDiff){
 							minDiff = newDiff;
 							minFrame = j;
@@ -439,15 +447,16 @@ public class VideoIndexer {
 					}
 				}
 				
-				colorFrame[i] = minFrame;
+				highlightFrame[i] = minFrame;
 			}
-			in.close();
+			cin.close();
+			ain.close();
 			
 			bottomPanel.removeAll();
 			bottomPanel.add(new ImageStripPanel(currentVideo, -1));
 			for (int i = 0; i < videoCount; i++){
 				if (i != currentVideo){
-					bottomPanel.add(new ImageStripPanel(i, colorFrame[i]));
+					bottomPanel.add(new ImageStripPanel(i, highlightFrame[i]));
 				}
 			}
 			bottomPanel.validate();
@@ -690,7 +699,7 @@ public class VideoIndexer {
 		    audioInputStream = null;
 			try {
 				InputStream bufferedIn = new BufferedInputStream(waveStream);
-				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+				audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 			    //audioInputStream.skip(temp * buffersize);
 			} catch (UnsupportedAudioFileException e1) {
 				System.out.println(e1);
