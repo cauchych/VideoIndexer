@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -20,6 +23,7 @@ public class AudioIndexer {
 		AudioIndexer ai = new AudioIndexer();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public AudioIndexer() {
 
 		
@@ -28,14 +32,14 @@ public class AudioIndexer {
 		filenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo2/vdo2.wav";
 		filenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.wav";
 		filenames[3] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav";
-		filenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.rgb";
-		filenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.rgb";
-		filenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.rgb";
-		filenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.rgb";
-		filenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.rgb";
-		filenames[9] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
-		filenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.rgb";
-		filenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.rgb";
+		filenames[4] = "C:/Users/Cauchy/Documents/CSCI576/project/vdo5/vdo5.wav";
+		filenames[5] = "C:/Users/Cauchy/Documents/CSCI576/project/vdo6/vdo6.wav";
+		filenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.wav";
+		filenames[7] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.wav";
+		filenames[8] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo9/vdo9.wav";
+		filenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.wav";
+		filenames[10] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo11/vdo11.wav";
+		filenames[11] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo12/vdo12.wav";
 		
 		try {
 			AudioFormat audioFormat;
@@ -51,13 +55,15 @@ public class AudioIndexer {
 			FileInputStream inputStream;
 			
 			
-			for (int i = 3; i < 4; i++) {
+			for (int i = 0; i < 12; i++) {
 				File file = new File(filenames[i]);
 				
 				bw.write("" + i + " ");
 				
 				int audiolen = (int)file.length();
 				bufferSize = (int) Math.round((double) audiolen * 42.0 / 30000.0);
+				int oneFrameSize = audiolen/720;
+				System.out.println("oneFrameSize: " + oneFrameSize);
 				System.out.println("audiolen: " + audiolen);
 				System.out.println("bufferSize: " + bufferSize);
 				audioBuffer = new byte[audiolen];
@@ -83,6 +89,11 @@ public class AudioIndexer {
 				
 				readBytes = audioInputStream.read(audioBuffer, 0, audioBuffer.length);
 				
+				int temp[] = new int[oneFrameSize];
+				int index = 0;
+				int count = 0;
+				int tempMax = 0;
+				
 				for (int audioByte = 0; audioByte < audioBuffer.length;)
 			    {
 			        //for (int channel = 0; channel < nbChannels; channel++)
@@ -94,17 +105,31 @@ public class AudioIndexer {
 				            int high = (int) audioBuffer[audioByte];
 				            audioByte++;
 				            int sample = (high << 8) + (low & 0x00ff);
-				            bw.write("" + sample + " ");
+				            temp[count] = sample;
+				            //bw.write("" + sample + " ");
 			            }
 			            //System.out.println(sample);
 			            //toReturn[index] = sample;
 			        //}
-			        //index++;
+			        count++;
+			        if ((audioByte) % oneFrameSize == 0) {
+			        	count = 0;
+			        	int maxVal = maxValue(temp);
+			        	if (maxVal > tempMax)
+			        		tempMax = maxVal;
+			        	
+			        	//System.out.println(maxVal);
+			        	
+			        	bw.write("" + maxVal/1024 + " ");
+			        }
+			        
+			        index++;
 			    }
-				
+				System.out.println(tempMax);
 				bw.write("\n");
 				
 			}
+			bw.close();
 		} catch (UnsupportedAudioFileException e1) {
 		    System.out.println(e1);
 		} catch (IOException e1) {
@@ -113,7 +138,25 @@ public class AudioIndexer {
 			e.printStackTrace();
 		}
 		
+		
+	}
 	
+	public int maxValue(int[] chars) {
+        int max = chars[0];
+        for (int ktr = 0; ktr < chars.length; ktr++) {
+                if (chars[ktr] > max) {
+                        max = chars[ktr];
+                }
+        }
+        return max;
+	}
+	
+	public int averageValue(int[] nums) {
+		int sum = 0;
+		for (int i = 0; i < nums.length; i++) {
+			sum += nums[i];
+		}
+		return sum / nums.length;
 	}
 	
 	public int[] getUnscaledAmplitude(byte[] eightBitByteArray)
