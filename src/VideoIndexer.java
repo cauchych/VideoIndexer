@@ -83,27 +83,27 @@ public class VideoIndexer {
 
 		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb";
 		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.rgb";
-		videofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.rgb";
-		videofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb";
+		videofilenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.rgb";
+		videofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb";
 		videofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.rgb";
 		videofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.rgb";
-		videofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.rgb";
-		videofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.rgb";
+		videofilenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.rgb";
+		videofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.rgb";
 		videofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.rgb";
-		videofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
+		videofilenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.rgb";
 		videofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.rgb";
 		videofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.rgb";
 
 		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.wav";
 		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.wav";
-		audiofilenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.wav";
-		audiofilenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.wav";
+		audiofilenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.wav";
+		audiofilenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.wav";
 		audiofilenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.wav";
 		audiofilenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.wav";
-		audiofilenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.wav";
-		audiofilenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.wav";
+		audiofilenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.wav";
+		audiofilenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.wav";
 		audiofilenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.wav";
-		audiofilenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.wav";
+		audiofilenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.wav";
 		audiofilenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.wav";
 		audiofilenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.wav";
 		
@@ -450,7 +450,12 @@ public class VideoIndexer {
 				if (readBytes >= 0){
 					//System.out.println(readBytes);
 					//System.arraycopy(audioBuffer, 0, temp, 0, audioBuffer.length);
-					/*int[] toReturn = new int[temp.length / 2];
+					
+					byte temp[] = new byte[audioBuffer.length];
+					for (int i = 0; i < temp.length; i++)
+						temp[i] = audioBuffer[currentVideo][i];
+					
+					int[] toReturn = new int[temp.length / 2];
 				    int index = 0;
 				    
 				    for (int audioByte = 0; audioByte < temp.length;)
@@ -465,13 +470,13 @@ public class VideoIndexer {
 					            audioByte++;
 					            
 					            int sample = (high << 8) + (low & 0x00ff);
-					            if (sample > 9000)
+					            if (sample > 10000)
 					            System.out.println(sample);
 					            toReturn[index] = sample;
 				            }
 				        //}
 				        index++;
-				    }*/
+				    }
 
 				    dataLine.write(audioBuffer[currentVideo], 0, readBytes);
 				    
