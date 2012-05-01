@@ -45,7 +45,7 @@ import javax.swing.border.EmptyBorder;
 
 public class VideoIndexer {
 	
-	private final int videoCount = 3;
+	private final int videoCount = 12;
 	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
