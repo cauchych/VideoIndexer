@@ -23,7 +23,6 @@ public class AudioIndexer {
 		AudioIndexer ai = new AudioIndexer();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public AudioIndexer() {
 
 		

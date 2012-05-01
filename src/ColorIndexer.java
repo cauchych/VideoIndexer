@@ -18,18 +18,18 @@ public class ColorIndexer {
 	
 	public ColorIndexer(){
 		String[] filenames = new String[12];
-		filenames[0] = "C:/Users/edeng/Documents/School/s10/576/project/vdo1/vdo1.rgb";
-		filenames[1] = "C:/Users/edeng/Documents/School/s10/576/project/vdo2/vdo2.rgb";
-		filenames[2] = "C:/Users/edeng/Documents/School/s10/576/project/vdo3/vdo3.rgb";
-		filenames[3] = "C:/Users/edeng/Documents/School/s10/576/project/vdo4/vdo4.rgb";
-		filenames[4] = "C:/Users/edeng/Documents/School/s10/576/project/vdo5/vdo5.rgb";
-		filenames[5] = "C:/Users/edeng/Documents/School/s10/576/project/vdo6/vdo6.rgb";
-		filenames[6] = "C:/Users/edeng/Documents/School/s10/576/project/vdo7/vdo7.rgb";
-		filenames[7] = "C:/Users/edeng/Documents/School/s10/576/project/vdo8/vdo8.rgb";
-		filenames[8] = "C:/Users/edeng/Documents/School/s10/576/project/vdo9/vdo9.rgb";
-		filenames[9] = "C:/Users/edeng/Documents/School/s10/576/project/vdo10/vdo10.rgb";
-		filenames[10] = "C:/Users/edeng/Documents/School/s10/576/project/vdo11/vdo11.rgb";
-		filenames[11] = "C:/Users/edeng/Documents/School/s10/576/project/vdo12/vdo12.rgb";
+		filenames[0] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo1/vdo1.rgb";
+		filenames[1] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo2/vdo2.rgb";
+		filenames[2] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo3/vdo3.rgb";
+		filenames[3] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo4/vdo4.rgb";
+		filenames[4] = "C:/Users/Cauchy/Documents/CSCI576/project/vdo5/vdo5.rgb";
+		filenames[5] = "C:/Users/Cauchy/Documents/CSCI576/project/vdo6/vdo6.rgb";
+		filenames[6] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo7/vdo7.rgb";
+		filenames[7] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo8/vdo8.rgb";
+		filenames[8] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo9/vdo9.rgb";
+		filenames[9] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo10/vdo10.rgb";
+		filenames[10] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo11/vdo11.rgb";
+		filenames[11] = "C:/Users/Cauchy/Documents/CSCI576/Project/vdo12/vdo12.rgb";
 		
 		try{
 			FileWriter fw = new FileWriter("colorindex.txt");
@@ -56,9 +56,9 @@ public class ColorIndexer {
 		    		ind = maxInd * i * 3;
 	
 				    HashMap<String, Integer> histogram = new HashMap<String, Integer>();
-					for(int y = 0; y < height; y+=10){
+					for(int y = 0; y < height; y++){
 				
-						for(int x = 0; x < width; x+=10){
+						for(int x = 0; x < width; x++){
 					 
 							int r = (int) bytes[ind];
 							int g = (int) bytes[ind+height*width];
