@@ -88,7 +88,7 @@ public class MotionIndexer {
 		    	}
 		    	
 		    	
-		    	int mbOffset = (width/16) * (height/16);
+		    	int mbOffset = ((width/16)-1) * ((height/16)-1);
 		    	double maxDiff = 0;
 		    	double diffSum = 0;
 		    	double maxAverage = 0;
@@ -109,7 +109,7 @@ public class MotionIndexer {
 		    			if (diffSum/mbOffset > maxAverage)
 		    				maxAverage = diffSum/mbOffset;
 		    			//System.out.println((int)(diffSum/mbOffset/62));
-		    			bw.write(""+ (int)((diffSum / mbOffset)/60) + " ");
+		    			bw.write(""+ (int)((diffSum / mbOffset)/64) + " ");
 		    			diffSum = 0;
 		    		}
 		    	}
