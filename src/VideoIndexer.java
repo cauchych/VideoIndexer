@@ -45,7 +45,7 @@ import javax.swing.border.EmptyBorder;
 
 public class VideoIndexer {
 	
-	private final int videoCount = 1;
+	private final int videoCount = 3;
 	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
@@ -383,6 +383,9 @@ public class VideoIndexer {
 	}
 	
 	public void search(){
+		if (status == VideoStatus.PLAYING) {
+			pause();
+		}
 		status = VideoStatus.SEARCHING;
 		System.out.print("\nSearching...");
 		//	TODO motion, audio
