@@ -281,7 +281,7 @@ public class VideoIndexer {
 
 			waveStream = new FileInputStream(audio);
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -354,7 +354,7 @@ public class VideoIndexer {
 	    audioInputStream = null;
 		try {
 			InputStream bufferedIn = new BufferedInputStream(waveStream);
-		    audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+		    audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 		} catch (UnsupportedAudioFileException e1) {
 			System.out.println(e1);
 		    //throw new PlayWaveException(e1);
@@ -571,7 +571,7 @@ public class VideoIndexer {
 					//System.out.println(readBytes);
 					//System.arraycopy(audioBuffer, 0, temp, 0, audioBuffer.length);
 					
-					byte temp[] = new byte[audioBuffer.length];
+					/*byte temp[] = new byte[audioBuffer.length];
 					for (int i = 0; i < temp.length; i++)
 						temp[i] = audioBuffer[currentVideo][i];
 					
@@ -596,7 +596,7 @@ public class VideoIndexer {
 				            }
 				        //}
 				        index++;
-				    }
+				    }*/
 
 				    dataLine.write(audioBuffer[currentVideo], 0, readBytes);
 				    
@@ -736,7 +736,7 @@ public class VideoIndexer {
 		    audioInputStream = null;
 			try {
 				InputStream bufferedIn = new BufferedInputStream(waveStream);
-				audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+				audioInputStream = AudioSystem.getAudioInputStream(waveStream);
 			    //audioInputStream.skip(temp * buffersize);
 			} catch (UnsupportedAudioFileException e1) {
 				System.out.println(e1);
