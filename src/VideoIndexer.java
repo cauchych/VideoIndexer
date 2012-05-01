@@ -224,13 +224,9 @@ public class VideoIndexer {
 	    
 	    Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
 	    labelTable.put( new Integer(0), new JLabel("0"));
-	    labelTable.put( new Integer(25), new JLabel(".25"));
 	    labelTable.put( new Integer(50), new JLabel(".5"));
-	    labelTable.put( new Integer(75), new JLabel(".75"));
 	    labelTable.put( new Integer(100), new JLabel("1"));
-	    labelTable.put( new Integer(125), new JLabel("1.25"));
 	    labelTable.put( new Integer(150), new JLabel("1.5"));
-	    labelTable.put( new Integer(175), new JLabel("1.75"));
 	    labelTable.put( new Integer(200), new JLabel("2"));
 	    colorSlider.setLabelTable(labelTable);
 	    audioSlider.setLabelTable(labelTable);
@@ -382,6 +378,9 @@ public class VideoIndexer {
 	}
 	
 	public void search(){
+		if (status == VideoStatus.PLAYING){
+			pause();
+		}
 		status = VideoStatus.SEARCHING;
 		System.out.print("\nSearching...");
 		//	TODO motion, audio
@@ -411,6 +410,7 @@ public class VideoIndexer {
 			}
 
 			int[] highlightFrame = new int[videoCount]; // tells you which frame to highlight for each video
+			double[] minDiffs = new double[videoCount];
 			String currentHSV = colorIndex[currentVideo][videoFrame];
 			int currentAudio = audioIndex[currentVideo][videoFrame];
 			
@@ -434,30 +434,54 @@ public class VideoIndexer {
 			}
 			
 			for(int i = 0; i < videoCount; i++){	
-				int minDiff = 32 * 2; // this is max difference
+				double minDiff = 32 * 2; // this is max difference
 				int minFrame = 0;
 				if (i != currentVideo){ // don't compare video to itself
 					for(int j = 0; j < numFrames; j++){
-						int newDiff = (int) Math.round(getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset)
-										+ (int)(Math.abs(currentAudio - audioIndex[i][j]) * aOffset);
+						double newDiff = (getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset)
+										+ (Math.abs(currentAudio - audioIndex[i][j]) * aOffset);
 						if (newDiff < minDiff){
 							minDiff = newDiff;
 							minFrame = j;
+							//System.out.println("new minFrame:" + minFrame + "; minDiff: " + minDiff);
 						}
 					}
 				}
 				
 				highlightFrame[i] = minFrame;
+				minDiffs[i] = minDiff;
 			}
 			cin.close();
 			ain.close();
 			
+			int[] sorted = new int[videoCount - 1];
+			for (int i = 0; i < sorted.length; i++){
+				sorted[i] = i;
+			}
+			if (currentVideo != videoCount - 1){
+				sorted[currentVideo] = videoCount - 1;
+			}
+			
+			int min;
+			for (int i=0; i< sorted.length; i++){
+				min = i;
+				for (int j=i; j<sorted.length; j++){
+					if (minDiffs[sorted[j]] < minDiffs[sorted[min]]){
+						min = j;
+					}
+				}
+				if(min != i){
+					int temp = sorted[i];
+					sorted[i] = sorted[min];
+					sorted[min] = temp;
+				}
+				
+			}
+			
 			bottomPanel.removeAll();
 			bottomPanel.add(new ImageStripPanel(currentVideo, -1));
-			for (int i = 0; i < videoCount; i++){
-				if (i != currentVideo){
-					bottomPanel.add(new ImageStripPanel(i, highlightFrame[i]));
-				}
+			for (int i = 0; i < sorted.length; i++){
+					bottomPanel.add(new ImageStripPanel(sorted[i], highlightFrame[sorted[i]]));
 			}
 			bottomPanel.validate();
 			bottomPanel.repaint();
