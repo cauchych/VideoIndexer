@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -38,16 +39,18 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.border.EmptyBorder;
 
 
 public class VideoIndexer {
 	
-	private final int videoCount = 3;
+	private final int videoCount = 1;
 	public enum VideoStatus {PLAYING, PAUSED, STOPPED, SEARCHING, START;};
 	BufferedImage vdo[][] = new BufferedImage[videoCount][720];
 	MyPanel imgPanel = new MyPanel();
 	JPanel bottomPanel;
+	JSlider colorSlider, audioSlider, motionSlider;
 	int videoFrame;
 	ScheduledThreadPoolExecutor videoTimer;
 	ScheduledThreadPoolExecutor audioTimer;
@@ -174,9 +177,13 @@ public class VideoIndexer {
 	    
 	    JPanel topPanel = new JPanel();
 	    topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
+	    JPanel bottomContainer = new JPanel();
 	    bottomPanel = new JPanel();
+	    JScrollPane bottomScrollPane = new JScrollPane(bottomPanel); // TODO
 	    bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
 	    bottomPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+	    bottomContainer.add(bottomScrollPane);
+	    bottomScrollPane.setPreferredSize(new Dimension(450, 250));
 	    
 	    //imgPanel.setBounds(0, 0, width, height);
 	    imgPanel.setPreferredSize(new Dimension(width, height));
@@ -196,11 +203,58 @@ public class VideoIndexer {
 	    searchButton = new JButton("Search");
 	    searchButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    searchButton.addActionListener(listener);
+	    
+	    colorSlider = new JSlider(JSlider.HORIZONTAL, 0, 200, 100);
+	    audioSlider = new JSlider(JSlider.HORIZONTAL, 0, 200, 100);
+	    motionSlider = new JSlider(JSlider.HORIZONTAL, 0, 200, 100);
+
+	    colorSlider.setMajorTickSpacing(100);
+	    colorSlider.setMinorTickSpacing(25);
+	    colorSlider.setPaintTicks(true);
+	    colorSlider.setPaintLabels(true);
+	    
+	    audioSlider.setMajorTickSpacing(100);
+	    audioSlider.setMinorTickSpacing(25);
+	    audioSlider.setPaintTicks(true);
+	    audioSlider.setPaintLabels(true);
+	    
+	    motionSlider.setMajorTickSpacing(100);
+	    motionSlider.setMinorTickSpacing(25);
+	    motionSlider.setPaintTicks(true);
+	    motionSlider.setPaintLabels(true);
+	    
+	    Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+	    labelTable.put( new Integer(0), new JLabel("0"));
+	    labelTable.put( new Integer(25), new JLabel(".25"));
+	    labelTable.put( new Integer(50), new JLabel(".5"));
+	    labelTable.put( new Integer(75), new JLabel(".75"));
+	    labelTable.put( new Integer(100), new JLabel("1"));
+	    labelTable.put( new Integer(125), new JLabel("1.25"));
+	    labelTable.put( new Integer(150), new JLabel("1.5"));
+	    labelTable.put( new Integer(175), new JLabel("1.75"));
+	    labelTable.put( new Integer(200), new JLabel("2"));
+	    colorSlider.setLabelTable(labelTable);
+	    audioSlider.setLabelTable(labelTable);
+	    motionSlider.setLabelTable(labelTable);
+	    
+	    JPanel csliderp = new JPanel();
+	    csliderp.add(new JLabel("C"));
+	    csliderp.add(colorSlider);
+	    JPanel asliderp = new JPanel();
+	    asliderp.add(new JLabel("A"));
+	    asliderp.add(audioSlider);
+	    JPanel msliderp = new JPanel();
+	    msliderp.add(new JLabel("M"));
+	    msliderp.add(motionSlider);
+	    
 	    buttonPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 	    buttonPanel.add(playButton);
 	    buttonPanel.add(pauseButton);
 	    buttonPanel.add(stopButton);
 	    buttonPanel.add(searchButton);
+	    buttonPanel.add(csliderp);
+	    buttonPanel.add(asliderp);
+	    buttonPanel.add(msliderp);
 	    
 	    topPanel.add(imgPanel);
 	    topPanel.add(buttonPanel);
@@ -213,7 +267,7 @@ public class VideoIndexer {
 
 	   // bottomPanel.add(new JLabel("image strip of frames will go here"));
 	    container.add(topPanel);
-	    container.add(bottomPanel);
+	    container.add(bottomContainer);
 	    
 	    frame.getContentPane().add(scrollContainer, BorderLayout.CENTER);
 	    frame.pack();
@@ -353,13 +407,33 @@ public class VideoIndexer {
 
 			int[] colorFrame = new int[videoCount]; // tells you which frame to highlight for each video
 			String currentHSV = colorIndex[currentVideo][videoFrame];
+			double cOffset, aOffset, mOffset;
+			if (colorSlider.getValue() != 0){
+				cOffset = 1.0 / ((double) colorSlider.getValue() / 100.0);
+			}else{
+				cOffset = 0;
+			}
+
+			if (audioSlider.getValue() != 0){
+				aOffset = 1.0 / ((double) audioSlider.getValue() / 100.0);
+			}else{
+				aOffset = 0;
+			}
+
+			if (motionSlider.getValue() != 0){
+				mOffset = 1.0 / ((double) motionSlider.getValue() / 100.0);
+			}else{
+				mOffset = 0;
+			}
+			
 			for(int i = 0; i < videoCount; i++){	
-				int minDiff = 72; // this is max difference
+				int minDiff = 32; // this is max difference
 				int minFrame = 0;
 				if (i != currentVideo){ // don't compare video to itself
 					for(int j = 0; j < numFrames; j++){
-						if (getHsvDifference(currentHSV, colorIndex[i][j]) < minDiff){
-							minDiff = getHsvDifference(currentHSV, colorIndex[i][j]);
+						int newDiff = (int) Math.round(getHsvDifference(currentHSV, colorIndex[i][j]) * cOffset);
+						if (newDiff < minDiff){
+							minDiff = newDiff;
 							minFrame = j;
 						}
 					}
@@ -376,8 +450,8 @@ public class VideoIndexer {
 					bottomPanel.add(new ImageStripPanel(i, colorFrame[i]));
 				}
 			}
+			bottomPanel.validate();
 			bottomPanel.repaint();
-			
 		}catch(Exception e){
 			e.printStackTrace();
 		}
