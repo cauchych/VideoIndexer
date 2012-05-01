@@ -63,6 +63,7 @@ public class AudioIndexer {
 				int audiolen = (int)file.length();
 				bufferSize = (int) Math.round((double) audiolen * 42.0 / 30000.0);
 				int oneFrameSize = audiolen/720;
+				System.out.println("index: " + i);
 				System.out.println("oneFrameSize: " + oneFrameSize);
 				System.out.println("audiolen: " + audiolen);
 				System.out.println("bufferSize: " + bufferSize);
@@ -112,7 +113,7 @@ public class AudioIndexer {
 			            //toReturn[index] = sample;
 			        //}
 			        count++;
-			        if ((audioByte) % oneFrameSize == 0) {
+			        if ((audioByte) % oneFrameSize == 0 || (audioByte + 1) % oneFrameSize == 0) {
 			        	count = 0;
 			        	int maxVal = maxValue(temp);
 			        	if (maxVal > tempMax)
